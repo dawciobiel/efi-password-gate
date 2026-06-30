@@ -1,0 +1,17 @@
+# Build artifacts
+*.o
+*.so
+*.efi
+
+# QEMU test environment
+test_disk/
+test_disk_vars.fd
+
+# Editor/IDE files
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS-specific
+.DS_Store
