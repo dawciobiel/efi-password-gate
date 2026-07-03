@@ -167,8 +167,14 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
   SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut = SystemTable->ConOut;
   SIMPLE_INPUT_INTERFACE *ConIn = SystemTable->ConIn;
 
+  /* Reset console to a known-good text mode before doing anything else.
+   * Helps on older/quirky firmware that leaves ConOut in a bad state
+   * after the boot manager hands off control. */
+  uefi_call_wrapper(ConOut->Reset, 2, ConOut, FALSE);
+  uefi_call_wrapper(ConOut->SetMode, 2, ConOut, 0);
+
   uefi_call_wrapper(ConOut->ClearScreen, 1, ConOut);
-  uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTGRAY);
+  uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_WHITE);
   uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Enter password: ");
 
   InputLen = 0;
@@ -203,9 +209,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
   uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"\r\n");
 
   if (HashMatches(InputBuffer, InputLen)) {
-    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTGREEN);
+    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_GREEN);
     uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Password correct.\r\n");
-    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTGRAY);
+    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_WHITE);
     uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Booting in 2 seconds...\r\n");
     uefi_call_wrapper(SystemTable->BootServices->Stall, 1, 2 * 1000 * 1000);
 
@@ -218,7 +224,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
       ImageHandle, &LoadedImageProtocol, (void **)&LoadedImage
     );
     if (EFI_ERROR(Status)) {
-      uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTRED);
+      uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_RED);
       uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Error: cannot get loaded image protocol.\r\n");
       return Status;
     }
@@ -230,7 +236,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
       FALSE, ImageHandle, DevicePath, NULL, 0, &NextImageHandle
     );
     if (EFI_ERROR(Status)) {
-      uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTRED);
+      uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_RED);
       uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Error: failed to load next bootloader.\r\n");
       return Status;
     }
@@ -242,9 +248,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
     return Status;
   }
   else {
-    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTRED);
+    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_RED);
     uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"Incorrect password.\r\n");
-    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_LIGHTGRAY);
+    uefi_call_wrapper(ConOut->SetAttribute, 2, ConOut, EFI_WHITE);
 
     uefi_call_wrapper(SystemTable->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
     while (uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, SystemTable->ConIn, &Key) == EFI_NOT_READY);

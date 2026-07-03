@@ -7,6 +7,9 @@
 test_disk/
 test_disk_vars.fd
 
+# Linux distro
+iso/
+
 # Editor/IDE files
 .idea/
 .vscode/

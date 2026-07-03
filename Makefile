@@ -1,4 +1,5 @@
-PROJECT_SOURCE_FILE = uefi-bootloader-password
+PROJECT_SOURCE_FILE = BOOTX64
+BOOTLOADER_EFI_FILE=BOOTX64.EFI
 
 ARCH      = x86_64
 EFIINC    = /usr/include/efi
@@ -22,8 +23,8 @@ $(PROJECT_SOURCE_FILE).so: $(PROJECT_SOURCE_FILE).o
 
 $(PROJECT_SOURCE_FILE).efi: $(PROJECT_SOURCE_FILE).so
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
-	    -j .dynsym -j .rel -j .rela -j .reloc \
-	    --target=efi-app-$(ARCH) $(PROJECT_SOURCE_FILE).so $(PROJECT_SOURCE_FILE).efi
+	    -j .dynsym -j .rel -j .rela -j .reloc -j .rodata \
+	    --target=efi-app-$(ARCH) $(PROJECT_SOURCE_FILE).so $(BOOTLOADER_EFI_FILE)
 
 clean:
-	rm -f *.o *.so *.efi
+	rm -f *.o *.so *.efi *.EFI
