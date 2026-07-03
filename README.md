@@ -33,6 +33,7 @@ sudo dnf install gnu-efi gnu-efi-devel gcc binutils make
 | File | Description |
 |---|---|
 | `BOOTX64.c` | Main UEFI application source code |
+| `BOOTX64.EFI` | compilated target file |
 | `generate_hash.py` | Helper script to generate the SHA-256 password hash |
 | `Makefile` | Build automation via `make` |
 | `build.sh` | Standalone build script (alternative to `make`) |
