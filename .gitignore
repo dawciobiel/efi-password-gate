@@ -2,6 +2,7 @@
 *.o
 *.so
 *.efi
+*.EFI
 
 # QEMU test environment
 test_disk/
